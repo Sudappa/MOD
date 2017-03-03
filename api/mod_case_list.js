@@ -174,6 +174,7 @@ module.exports = function(app, db){
 			{ $push: 
 				{ 
 					cases : {
+						_id: new ObjectID(),
 				      	court_name : req.body.court_name,
 				      	case_number : req.body.case_number,
 				      	first_party : req.body.first_party,
