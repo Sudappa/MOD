@@ -11,6 +11,7 @@ module.exports = function(app, db){
 	.put('/mod_case_list/update_profile/:mod_case_list_id',update_existing_from_mod_case_list1)
 	.put('/mod_case_list/push_new_case/:mod_case_list_id1',update_case_using_id)
 	;
+	var ObjectID = require('mongodb').ObjectID;
 
 	function get_all_mod_case_list(req, res){
 		db.collection_mod_case_list.find(callback_find);
