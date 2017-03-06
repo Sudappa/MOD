@@ -3,13 +3,15 @@
 module.exports = function(app, db){
 	
 	app
-	.get('/mod_case_list',get_all_mod_case_list)
-	.post('/mod_case_list',insert_into_mod_case_list)
-	.delete('/mod_case_list/:mod_case_list_id',delete_from_mod_case_list)
-	.get('/mod_case_list/:mod_case_list_id',get_by_id_from_mod_case_list)
-	.get('/mod_case_list/get_by_email/:email_id',get_by_email_id_from_mod_case_list)
-	.put('/mod_case_list/update_profile/:mod_case_list_id',update_existing_from_mod_case_list1)
-	.put('/mod_case_list/push_new_case/:mod_case_list_id1',update_case_using_id)
+	.get('/mod_case_list',get_all_mod_case_list) // for selecting and fetching all profiles
+	.post('/mod_case_list',insert_into_mod_case_list) // inserting a new profile into mod case list
+	.delete('/mod_case_list/:mod_case_list_id',delete_from_mod_case_list) // delete a profile using object id
+	.get('/mod_case_list/:mod_case_list_id',get_by_id_from_mod_case_list) // finding a profile using object id
+	.get('/mod_case_list/get_by_email/:email_id',get_by_email_id_from_mod_case_list) // finding and fetching a profile using email id
+	.put('/mod_case_list/update_profile/:mod_case_list_id',update_existing_from_mod_case_list1) // for updating profile
+	.put('/mod_case_list/push_new_case/:mod_case_list_id1',update_case_using_id) // for adding new case
+	.put('/mod_case_list/edit_new_case/:mod_case_id',edit_case_using_id)  // for editing case.
+	.put('/mod_case_list/update_fully/:mod_case_list_id',update_existing_fully_from_mod_case_list)
 	;
 	var ObjectID = require('mongodb').ObjectID;
 
@@ -197,6 +199,63 @@ module.exports = function(app, db){
 			}
 		)
 	}
+
+	function edit_case_using_id(req,res){
+		db.collection_mod_case_list.update(
+			{_id:db.ObjectID(req.params.mod_case_id)},
+			{ $set : 
+				{ 
+					cases : {
+				      	court_name : req.body.court_name,
+				      	case_number : req.body.case_number,
+				      	first_party : req.body.first_party,
+				      	second_party : req.body.second_party,
+				      	previous_date : req.body.previous_date,
+				      	next_date : req.body.next_date,
+				      	case_stage : req.body.case_stage
+				    }
+				} 
+			},
+			function(err, result) {
+				if(result == null){
+					console.log("ON ERROR: " + "Record NOT updated");
+					res.json(err);
+				}else{
+		  			console.log("ON SUCCESS: " + "Record UPDATED");
+					res.json(result);
+		  		} 
+			}
+		)
+	}
+
+	function update_existing_fully_from_mod_case_list(req, res){
+		// console.log("Body length = " + req.body.cases.length);
+
+		// for(var i = 0; i < req.body.cases.length; i++){
+		// 	if(!req.body.cases[i]._id){
+		// 		var updated_person_object = update_case_using_id(req.body.cases[i]);
+		// 	}
+		// }
+        req.body._id = db.ObjectId(req.params.mod_case_list_id);
+
+        console.log("inside update_existing_fully_from_mod_case_list");
+        db.collection_mod_case_list.update(
+            {_id: db.ObjectId(req.params.mod_case_list_id)},
+            req.body,
+            callback_update
+        );
+        function callback_update(err, result) {
+            if(err){
+                console.log("ON ERROR: " + "Record NOT updated");
+                res.json(err);
+                // throw err;
+            }else{
+                console.log("ON SUCCESS: " + "Record UPDATED");
+                res.json(result);
+            }
+        }
+
+    }
 
 
 	function update_existing_from_mod_case_list1(req, res){
